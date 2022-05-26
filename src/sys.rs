@@ -16,16 +16,19 @@
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-#[cfg(any(target_arch = "wasm32", target_env = "sgx"))]
-#[path = "sys/stub.rs"]
-mod inner;
-
 #[cfg(all(unix, not(target_arch = "wasm32"), not(target_env = "sgx")))]
 #[path = "sys/unix.rs"]
 mod inner;
 
-#[cfg(all(windows, not(target_arch = "wasm32"), not(target_env = "sgx")))]
+#[cfg(windows)]
 #[path = "sys/windows.rs"]
+mod inner;
+
+#[cfg(all(
+    not(all(unix, not(target_arch = "wasm32"), not(target_env = "sgx"))),
+    not(windows)
+))]
+#[path = "sys/stub.rs"]
 mod inner;
 
 /// A record specifying a time value in seconds and nanoseconds, where
